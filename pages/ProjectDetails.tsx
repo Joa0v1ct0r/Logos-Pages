@@ -82,7 +82,8 @@ export const ProjectDetails: React.FC = () => {
             <div className="fixed inset-0 divine-pattern z-[1] opacity-30 pointer-events-none" />
             <CustomCursor />
 
-            <nav className="fixed top-0 left-0 w-full z-[110] p-6 md:p-8 flex justify-between items-center mix-blend-difference">
+            <nav className="fixed top-0 left-0 w-full z-[110] p-6 md:p-8 flex justify-between items-center bg-white/10 dark:bg-black/20 backdrop-blur-md border-b border-white/5">
+
                 <Link to="/" className="group flex items-center gap-3 text-white">
                     <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
                         <ArrowLeft size={18} />
@@ -113,7 +114,8 @@ export const ProjectDetails: React.FC = () => {
                             transition={{ delay: 0.1 }}
                             className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9]"
                         >
-                            {project.title.toUpperCase()}.
+                            {project.title?.toUpperCase() || 'PROJETO'}.
+
                         </motion.h1>
                     </div>
 
@@ -132,7 +134,8 @@ export const ProjectDetails: React.FC = () => {
                         transition={{ delay: 0.4 }}
                         className="flex flex-wrap justify-center gap-3 pt-8"
                     >
-                        {project.technologies?.map((tech) => (
+                        {Array.isArray(project.technologies) && project.technologies.map((tech) => (
+
                             <span key={tech} className="px-6 py-2 bg-neutral-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/5">
                                 {tech}
                             </span>
@@ -218,7 +221,8 @@ export const ProjectDetails: React.FC = () => {
                         <h3 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">O que foi desenvolvido</h3>
 
                         <div className="space-y-4">
-                            {(project.developed_items && project.developed_items.length > 0 ? project.developed_items : [
+                            {(Array.isArray(project.developed_items) && project.developed_items.length > 0 ? project.developed_items : [
+
                                 { title: 'Design UI/UX', description: 'Interface moderna e intuitiva focada em resultados.' },
                                 { title: 'Desenvolvimento Frontend', description: 'Código limpo, performático e totalmente responsivo.' },
                                 { title: 'SEO & Performance', description: 'Otimização máxima para mecanismos de busca.' }
@@ -248,7 +252,8 @@ export const ProjectDetails: React.FC = () => {
                     </h2>
 
                     <a
-                        href={`https://wa.me/5511999999999?text=${encodeURIComponent(project.whatsapp_message || `Olá! Vi o projeto ${project.title} no seu portfólio e gostaria de algo semelhante.`)}`}
+                        href={`https://wa.me/5511999999999?text=${encodeURIComponent(project.whatsapp_message || `Olá! Vi o projeto ${project.title || ''} no seu portfólio e gostaria de algo semelhante.`)}`}
+
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-4 px-12 py-6 bg-[#ffcc00] text-black rounded-full font-black uppercase text-xs tracking-[0.2em] shadow-2xl shadow-[#ffcc00]/20 hover:scale-110 active:scale-95 transition-all group"
