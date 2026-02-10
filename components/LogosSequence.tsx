@@ -33,14 +33,14 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // 1. Globe Intro: 0 to 0.2
-    // 2. Crossfade: Globe [0.2 -> 0.4], Hero [0.3 -> 0.5]
-    // 3. Hero Focus: 0.5 to 1.0 (Stay visible for the rest of the 350vh)
-    const contentOpacity = useTransform(smoothProgress, [0.3, 0.5], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.3, 0.5], [40, 0]);
+    // 1. Hero starts appearing almost immediately as the user scrolls
+    // 2. Full overlap between [0.1 and 0.5] to prevent empty screens
+    // 3. Hero takes the stage permanently after 0.55
+    const contentOpacity = useTransform(smoothProgress, [0.1, 0.35], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.1, 0.35], [40, 0]);
 
-    // Globe clears out early to allow the Hero to breathe
-    const globeOpacity = useTransform(smoothProgress, [0.2, 0.45], [1, 0]);
+    // Globe stays visible during the entire Hero entry, then clears away
+    const globeOpacity = useTransform(smoothProgress, [0.3, 0.55], [1, 0]);
 
     // Ensure buttons are clickable only when Hero is established
     const pointerEvents = useTransform(smoothProgress, p => p > 0.5 ? 'auto' : 'none');
