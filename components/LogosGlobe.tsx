@@ -368,27 +368,29 @@ export const LogosGlobe: React.FC<{ progress: any; isDark?: boolean }> = ({ prog
     const isHovering = useRef(false);
     const mousePos = useRef(new THREE.Vector2(0, 0));
 
-    useFrame((state) => {
+    useFrame((state, delta) => {
         if (!globeRef.current) return;
 
         // 1. Calculate Target Rotation based on Drag
         let targetX = targetRotation.current.x;
         let targetY = targetRotation.current.y;
 
-        // 2. Add Subtle Hover Tilt if NOT dragging
+        // 2. Add Persistent Auto-rotation (Drift)
+        // If NOT dragging, slowly rotate the globe on its Y axis
+        if (!isDragging.current) {
+            targetRotation.current.y += delta * 0.05;
+        }
+
+        // 3. Add Subtle Hover Tilt if NOT dragging
         if (!isDragging.current && isHovering.current) {
-            // Convert mouse pos to small angle offset (max 0.15 rad ~ 8 degrees)
             const hoverTiltX = -mousePos.current.y * 0.15;
             const hoverTiltY = mousePos.current.x * 0.15;
-
             targetX += hoverTiltX;
             targetY += hoverTiltY;
         }
 
-        // 3. Smooth Interpolation
-        // Use faster lerp for drag (0.12), slower for hover settle (0.05)
-        const lerpFactor = isDragging.current ? 0.12 : 0.05;
-
+        // 4. Smooth Interpolation
+        const lerpFactor = isDragging.current ? 0.15 : 0.05;
         currentRotation.current.x = THREE.MathUtils.lerp(currentRotation.current.x, targetX, lerpFactor);
         currentRotation.current.y = THREE.MathUtils.lerp(currentRotation.current.y, targetY, lerpFactor);
 
@@ -406,20 +408,17 @@ export const LogosGlobe: React.FC<{ progress: any; isDark?: boolean }> = ({ prog
 
             <group
                 ref={globeRef}
-                onPointerDown={onPointerDown}
                 onPointerOver={() => {
-                    document.body.style.cursor = 'grab';
+                    if (!isDragging.current) document.body.style.cursor = 'grab';
                     isHovering.current = true;
                 }}
                 onPointerOut={() => {
-                    document.body.style.cursor = 'auto';
+                    if (!isDragging.current) document.body.style.cursor = 'auto';
                     isHovering.current = false;
-                    mousePos.current.set(0, 0); // Reset tilt smoothly
+                    mousePos.current.set(0, 0);
                 }}
                 onPointerMove={(e) => {
                     if (isDragging.current) return;
-                    // Normalize mouse pos relative to center of screen (-1 to 1)
-                    // Simple approximation using window size
                     const x = (e.clientX / window.innerWidth) * 2 - 1;
                     const y = (e.clientY / window.innerHeight) * 2 - 1;
                     mousePos.current.set(x, y);
@@ -428,12 +427,22 @@ export const LogosGlobe: React.FC<{ progress: any; isDark?: boolean }> = ({ prog
                 <CircuitNetwork radius={RADIUS} progress={progress} />
                 <HeroElements radius={RADIUS} progress={progress} />
 
-                {/* Active invisible hitarea */}
-                <mesh>
-                    <sphereGeometry args={[RADIUS * 1.1, 32, 32]} />
+                {/* Active invisible hitarea - Handles the drag initiation */}
+                <mesh
+                    onPointerDown={(e) => {
+                        (e as any).stopPropagation();
+                        onPointerDown(e);
+                        document.body.style.cursor = 'grabbing';
+                    }}
+                    onPointerUp={() => {
+                        document.body.style.cursor = isHovering.current ? 'grab' : 'auto';
+                    }}
+                >
+                    <sphereGeometry args={[RADIUS * 1.2, 32, 32]} />
                     <meshBasicMaterial transparent opacity={0} depthWrite={false} />
                 </mesh>
             </group>
         </group>
     );
+
 };

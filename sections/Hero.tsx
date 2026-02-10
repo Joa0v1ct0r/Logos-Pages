@@ -8,7 +8,7 @@ export const Hero: React.FC = () => {
     <section
       className="relative min-h-[100svh] flex flex-col items-center justify-center px-4 md:px-6 pt-24 pb-12 overflow-hidden bg-transparent pointer-events-none"
     >
-      <div className="relative z-10 max-w-7xl w-full pointer-events-auto">
+      <div className="relative z-10 max-w-7xl w-full pointer-events-none">
         <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -63,7 +63,7 @@ export const Hero: React.FC = () => {
               className="w-full md:w-auto px-4 md:px-0"
             >
               <button
-                className="group relative flex items-center justify-between md:justify-start gap-6 md:gap-8 bg-white text-black pl-8 md:pl-12 pr-4 md:pr-6 py-4 md:py-6 rounded-full w-full md:w-auto transition-all duration-700 shadow-xl"
+                className="group relative flex items-center justify-between md:justify-start gap-6 md:gap-8 bg-white text-black pl-8 md:pl-12 pr-4 md:pr-6 py-4 md:py-6 rounded-full w-full md:w-auto transition-all duration-700 shadow-xl pointer-events-auto"
               >
                 <span className="relative z-10 font-black text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em]">Criar Legado</span>
 
