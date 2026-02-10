@@ -34,22 +34,20 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
     });
 
     // REFINED SEQUENTIAL PHASES
-    // 1. Globe Intro: 0.0 to 0.4 (Globe fades out early)
+    // 1. Globe Intro: 0.0 to 0.4 (Globe fades out)
     const globeOpacity = useTransform(smoothProgress, [0.1, 0.4], [1, 0]);
 
-    // 2. Transição Curta: 0.4 a 0.45
+    // 2. Immediate Hero Transition: Hero starts entering earlier
+    const contentOpacity = useTransform(smoothProgress, [0.3, 0.55], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.3, 0.55], [60, 0]);
 
-    // 3. Hero Appearance: 0.45 to 0.65 (Hero fades in and stays solid)
-    const contentOpacity = useTransform(smoothProgress, [0.45, 0.65], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.45, 0.65], [80, 0]);
-
-    // Ensure Hero is fully interactive during the long "Hero Focus" phase (0.65 to 0.95)
-    const pointerEvents = useTransform(smoothProgress, p => p > 0.6 ? 'auto' : 'none');
+    // Interaction window
+    const pointerEvents = useTransform(smoothProgress, p => p > 0.5 ? 'auto' : 'none');
 
     return (
         <div
             ref={containerRef}
-            className="relative w-full bg-[#000a1a] z-10"
+            className="relative w-full bg-[#000a1a] z-30"
             style={{ height: isMobile ? "auto" : "400vh" }}
         >
             {/* 3D PERSPECTIVE LAYER (Fixed) - DESKTOP ONLY */}
