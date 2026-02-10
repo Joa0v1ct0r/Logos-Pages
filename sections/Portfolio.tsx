@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useAnimationFrame, useTransform, useScroll } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useMotionValue, useAnimationFrame, useTransform } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -9,19 +9,12 @@ export const Portfolio: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
-  const containerRef = useRef<HTMLElement>(null);
 
   // Motion value for manually controlled X position (in percentage)
   const xPos = useMotionValue(0);
 
   // Correctly transform the numeric value to a percentage string
   const xTransform = useTransform(xPos, v => `${v}%`);
-
-  // We keep the scroll logic for future use but don't apply it to opacity for now to ensure visibility
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "center 40%"]
-  });
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -65,7 +58,6 @@ export const Portfolio: React.FC = () => {
   return (
     <div
       id="portfolio"
-      ref={containerRef as any}
       className="relative py-24 md:py-48 bg-light dark:bg-dark overflow-hidden border-y border-black/5 dark:border-white/5"
     >
       <div className="w-full">
