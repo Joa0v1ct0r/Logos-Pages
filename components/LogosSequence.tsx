@@ -33,22 +33,23 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // REFINED SEQUENTIAL PHASES
-    // 1. Globe Intro: 0.0 to 0.4 (Globe fades out)
-    const globeOpacity = useTransform(smoothProgress, [0.1, 0.4], [1, 0]);
+    // RADICAL SEQUENTIAL ACCELERATION
+    // 1. Globe Intro: 0.0 to 0.15
+    // 2. Ultra-Fast Transition: Globe [0.15 -> 0.4], Hero [0.05 -> 0.25]
+    const contentOpacity = useTransform(smoothProgress, [0.05, 0.25], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.05, 0.25], [40, 0]);
 
-    // 2. Immediate Hero Transition: Hero starts entering earlier
-    const contentOpacity = useTransform(smoothProgress, [0.3, 0.55], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.3, 0.55], [60, 0]);
+    // Globe clears out rapidly after the initial burst to let the Hero shine
+    const globeOpacity = useTransform(smoothProgress, [0.15, 0.4], [1, 0]);
 
-    // Interaction window
-    const pointerEvents = useTransform(smoothProgress, p => p > 0.5 ? 'auto' : 'none');
+    // Interaction window - enabled almost immediately
+    const pointerEvents = useTransform(smoothProgress, p => p > 0.2 ? 'auto' : 'none');
 
     return (
         <div
             ref={containerRef}
             className="relative w-full bg-[#000a1a] z-30"
-            style={{ height: isMobile ? "auto" : "400vh" }}
+            style={{ height: isMobile ? "auto" : "350vh" }}
         >
             {/* 3D PERSPECTIVE LAYER (Fixed) - DESKTOP ONLY */}
             {!isMobile && (
@@ -76,7 +77,7 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
             )}
 
             {/* CONTENT LAYER - Sticky so the Hero stays centered while fading in during the sequence */}
-            <div className={`z-20 w-full flex flex-col items-center justify-center ${isMobile ? 'relative py-20' : 'sticky top-0 h-screen overflow-hidden'}`}>
+            <div className={`z-20 w-full flex flex-col items-center justify-center ${isMobile ? 'relative py-20' : 'sticky top-0 h-screen'}`}>
                 <motion.div
                     style={{
                         opacity: isMobile ? 1 : contentOpacity,
