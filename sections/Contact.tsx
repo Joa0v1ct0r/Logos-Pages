@@ -35,8 +35,8 @@ export const Contact: React.FC = () => {
               </div>
 
               <h2 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 text-black dark:text-white leading-[0.9]">
-                CONSTRUA SEU <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffcc00] to-[#eab308] dark:from-[#ffcc00] dark:to-[#ffe066]">LEGADO AGORA.</span>
+                ENTRE EM <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffcc00] to-[#eab308] dark:from-[#ffcc00] dark:to-[#ffe066]">CONTATO CONOSCO.</span>
               </h2>
 
               <p className="text-neutral-600 dark:text-neutral-400 text-xl font-light leading-relaxed mb-12 max-w-md">
