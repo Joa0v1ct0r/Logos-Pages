@@ -33,13 +33,13 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // 1. Initial State (p=0): Hero is visible, Globe is the focus.
-    // 2. Transition: Hero settles as you scroll.
-    const contentOpacity = useTransform(smoothProgress, [0, 0.2, 0.8, 1], [1, 1, 1, 0]);
-    const contentY = useTransform(smoothProgress, [0, 0.4], [0, 0]);
+    // 1. Sequence Phase: Globe acts as the intro (0 to 0.4 progress)
+    // 2. Transition Phase: Hero content emerges only after the globe intro (0.4+)
+    const contentOpacity = useTransform(smoothProgress, [0.45, 0.75], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.45, 0.75], [100, 0]);
 
-    // Globe is the protagonist at the start. It fades out as the Hero takes full focus.
-    const globeOpacity = useTransform(smoothProgress, [0.5, 0.8], [1, 0]);
+    // Globe starts at full strength and vanishes as the Hero content takes over
+    const globeOpacity = useTransform(smoothProgress, [0.4, 0.6], [1, 0]);
 
     return (
         <div
