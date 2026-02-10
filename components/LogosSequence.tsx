@@ -33,25 +33,29 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // 1. Sequence Phase: Globe acts as the intro (0 to 0.4 progress)
-    // 2. Transition Phase: Hero content emerges only after the globe intro (0.4+)
-    const contentOpacity = useTransform(smoothProgress, [0.45, 0.75], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.45, 0.75], [100, 0]);
+    // 1. Globe Intro: Active from 0 to 0.3
+    // 2. Transition: Globe fades [0.3 -> 0.5], Hero fades in [0.4 -> 0.6]
+    // 3. Hero Focus: Hero stays solid from 0.6 to 1.0 (plenty of scroll space)
+    const contentOpacity = useTransform(smoothProgress, [0.4, 0.6], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.4, 0.6], [60, 0]);
 
-    // Globe starts at full strength and vanishes as the Hero content takes over
-    const globeOpacity = useTransform(smoothProgress, [0.4, 0.6], [1, 0]);
+    // Globe starts at full strength and vanishes exactly as the Hero title settles
+    const globeOpacity = useTransform(smoothProgress, [0.3, 0.55], [1, 0]);
+
+    // Ensure buttons are clickable only when Hero is established
+    const pointerEvents = useTransform(smoothProgress, p => p > 0.5 ? 'auto' : 'none');
 
     return (
         <div
             ref={containerRef}
             className="relative w-full bg-[#000a1a] z-0"
-            style={{ height: isMobile ? "auto" : "300vh" }}
+            style={{ height: isMobile ? "auto" : "400vh" }}
         >
             {/* 3D PERSPECTIVE LAYER (Fixed) - DESKTOP ONLY */}
             {!isMobile && (
                 <motion.div
                     style={{ opacity: globeOpacity }}
-                    className="fixed inset-0 z-[5]"
+                    className="fixed inset-0 z-[5] pointer-events-none"
                 >
                     <Canvas
                         camera={{ position: [0, 0, 10], fov: 45 }}
@@ -73,13 +77,14 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
             )}
 
             {/* CONTENT LAYER - Sticky so the Hero stays centered while fading in during the sequence */}
-            <div className={`z-20 w-full flex flex-col items-center justify-center pointer-events-none ${isMobile ? 'relative py-20' : 'sticky top-0 h-screen overflow-hidden'}`}>
+            <div className={`z-20 w-full flex flex-col items-center justify-center ${isMobile ? 'relative py-20' : 'sticky top-0 h-screen overflow-hidden'}`}>
                 <motion.div
                     style={{
                         opacity: isMobile ? 1 : contentOpacity,
-                        y: isMobile ? 0 : contentY
+                        y: isMobile ? 0 : contentY,
+                        pointerEvents: isMobile ? 'auto' : pointerEvents
                     }}
-                    className="w-full pointer-events-none"
+                    className="w-full"
                 >
                     {children}
                 </motion.div>
