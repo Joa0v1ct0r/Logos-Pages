@@ -154,7 +154,7 @@ export const Portfolio: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="hidden md:flex items-center gap-2 text-white font-black text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 text-white font-black text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
                   Ver Detalhes
                   <ArrowUpRight size={14} className="text-[#ffcc00]" />
                 </div>
