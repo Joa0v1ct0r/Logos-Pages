@@ -57,6 +57,11 @@ const LandingPage = () => {
     return saved ? saved === 'dark' : true;
   });
 
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
+
   const { scrollY } = useScroll();
   const navbarOpacity = useTransform(scrollY, [600, 1000], [0, 1]);
   const smoothNavbarOpacity = useSpring(navbarOpacity, { stiffness: 100, damping: 30 });
@@ -86,9 +91,20 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <main className="relative bg-light dark:bg-dark text-dark dark:text-white selection:bg-[#ffcc00]/30 min-h-screen">
+    <main
+      onMouseMove={handleMouseMove}
+      className="relative bg-light dark:bg-dark text-dark dark:text-white selection:bg-[#ffcc00]/30 min-h-screen overflow-x-hidden"
+    >
       <div className="fixed inset-0 grainy z-[100] pointer-events-none" />
       <div className="fixed inset-0 divine-pattern z-[1] opacity-50 pointer-events-none" />
+
+      {/* Global Interactive Spotlight */}
+      <motion.div
+        className="fixed inset-0 z-[2] pointer-events-none opacity-0 dark:opacity-40"
+        animate={{
+          background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, rgba(0, 242, 255, 0.03), transparent 70%)`
+        }}
+      />
 
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-20 dark:opacity-20">
         <div className="absolute top-[10%] left-[-5%] w-[40%] aspect-square border border-black/[0.03] dark:border-white/[0.03] rounded-full" />
