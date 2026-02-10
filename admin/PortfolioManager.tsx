@@ -458,124 +458,13 @@ export const PortfolioManager: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* DETAILED CONTENT */}
-                            <div className="space-y-6 pt-6 border-t border-white/5">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#ffcc00] border-b border-[#ffcc00]/20 pb-2">Conteúdo Detalhado (Case)</h3>
+                            {/* HIDING CASE STUDY DETAILS AS PER USER REQUEST TO SIMPLIFY */}
+                            {/* <div className="space-y-6 pt-6 border-t border-white/5">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#ffcc00] border-b border-[#ffcc00]/20 pb-2">Conteúdo Detalhado (Opcional)</h3>
+                                ...
+                            </div> */}
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">Sobre o Projeto (Descrição Longa)</label>
-                                            <textarea
-                                                rows={4}
-                                                value={currentProject.long_description}
-                                                onChange={(e) => setCurrentProject({ ...currentProject, long_description: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/5 rounded-3xl py-5 px-6 focus:outline-none focus:border-red-600 transition-all resize-none font-medium text-sm leading-relaxed"
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">Objetivos</label>
-                                                <textarea
-                                                    rows={3}
-                                                    value={currentProject.objectives}
-                                                    onChange={(e) => setCurrentProject({ ...currentProject, objectives: e.target.value })}
-                                                    className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 px-6 focus:outline-none focus:border-red-600 transition-all resize-none text-sm"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">Diferenciais</label>
-                                                <textarea
-                                                    rows={3}
-                                                    value={currentProject.differentials}
-                                                    onChange={(e) => setCurrentProject({ ...currentProject, differentials: e.target.value })}
-                                                    className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 px-6 focus:outline-none focus:border-red-600 transition-all resize-none text-sm"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">Problema Resolvido</label>
-                                            <textarea
-                                                rows={2}
-                                                value={currentProject.problem_solved}
-                                                onChange={(e) => setCurrentProject({ ...currentProject, problem_solved: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 px-6 focus:outline-none focus:border-red-600 transition-all resize-none text-sm"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between ml-4">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500">O que foi desenvolvido</label>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCurrentProject({
-                                                        ...currentProject,
-                                                        developed_items: [...(currentProject.developed_items || []), { title: '', description: '' }]
-                                                    })}
-                                                    className="text-[10px] font-bold text-[#ffcc00] uppercase hover:text-white transition-colors"
-                                                >
-                                                    + Adicionar Item
-                                                </button>
-                                            </div>
-                                            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                                {currentProject.developed_items?.map((item, idx) => (
-                                                    <div key={idx} className="bg-white/5 p-4 rounded-2xl relative border border-white/5">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                const items = [...(currentProject.developed_items || [])];
-                                                                items.splice(idx, 1);
-                                                                setCurrentProject({ ...currentProject, developed_items: items });
-                                                            }}
-                                                            className="absolute top-2 right-2 p-1 text-neutral-600 hover:text-red-500"
-                                                        >
-                                                            <X size={14} />
-                                                        </button>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Título (ex: UI/UX Design)"
-                                                            value={item.title}
-                                                            onChange={(e) => {
-                                                                const items = [...(currentProject.developed_items || [])];
-                                                                items[idx].title = e.target.value;
-                                                                setCurrentProject({ ...currentProject, developed_items: items });
-                                                            }}
-                                                            className="w-full bg-transparent border-b border-white/10 py-1 mb-2 focus:outline-none focus:border-[#ffcc00] font-bold text-xs"
-                                                        />
-                                                        <textarea
-                                                            placeholder="Breve descrição do trabalho"
-                                                            value={item.description}
-                                                            onChange={(e) => {
-                                                                const items = [...(currentProject.developed_items || [])];
-                                                                items[idx].description = e.target.value;
-                                                                setCurrentProject({ ...currentProject, developed_items: items });
-                                                            }}
-                                                            className="w-full bg-transparent py-1 focus:outline-none resize-none text-[11px] text-neutral-400"
-                                                            rows={2}
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">Mensagem WhatsApp Customizada</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Mensagem quando o cliente clicar no CTA"
-                                                value={currentProject.whatsapp_message}
-                                                onChange={(e) => setCurrentProject({ ...currentProject, whatsapp_message: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 px-6 focus:outline-none focus:border-red-600 transition-all text-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4 pt-6">
+                            <div className="flex gap-4 pt-10 border-t border-white/5">
                                 <button
                                     type="button"
                                     onClick={() => setIsEditing(false)}

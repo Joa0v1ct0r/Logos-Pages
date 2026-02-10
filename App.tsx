@@ -14,7 +14,6 @@ import { Pricing } from './sections/Pricing';
 import { FAQ } from './sections/FAQ';
 import { Contact } from './sections/Contact';
 import { LogosSequence } from './components/LogosSequence';
-import { ProjectDetails } from './pages/ProjectDetails';
 import { IntroAnimation } from './components/IntroAnimation';
 
 // Admin Components
@@ -146,7 +145,6 @@ const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/projeto/:slug" element={<ProjectDetails />} />
       <Route path="/admin/login" element={<Login />} />
 
       <Route path="/admin" element={

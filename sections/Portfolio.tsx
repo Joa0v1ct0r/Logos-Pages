@@ -1,26 +1,17 @@
-
 import React, { useState, useEffect } from 'react';
-import { motion, Variants } from 'framer-motion';
+import { motion, useMotionValue, useAnimationFrame } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 
-interface Project {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  technologies: string[];
-  cover_image_url: string;
-  is_active: boolean;
-}
-
-const MotionLink = motion.create(Link);
+import { Project } from '../types';
 
 export const Portfolio: React.FC = () => {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Motion value for manually controlled X position (in percentage)
+  const xPos = useMotionValue(0);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -39,133 +30,121 @@ export const Portfolio: React.FC = () => {
     fetchProjects();
   }, []);
 
+  // Frame-by-frame animation logic
+  useAnimationFrame((_time, delta) => {
+    if (loading || isPaused || projects.length === 0) return;
+
+    // Constant speed (approx 5% per second)
+    const moveStep = (delta / 1000) * 5;
+    let nextX = xPos.get() - moveStep;
+
+    // Reset point (using 50% since we duplicated the list)
+    if (nextX <= -50) {
+      nextX = 0;
+    }
+    xPos.set(nextX);
+  });
+
   if (loading) {
     return (
-      <section id="portfolio" className="py-20 md:py-32 px-4 md:px-6 bg-light dark:bg-dark">
+      <section id="portfolio" className="py-20 bg-light dark:bg-dark">
         <div className="max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
-          <div className="text-neutral-500 animate-pulse font-bold tracking-widest uppercase text-xs">Carregando Portfólio...</div>
+          <div className="text-neutral-500 animate-pulse font-black uppercase text-xs tracking-[0.3em]">Carregando Portfólio...</div>
         </div>
       </section>
     );
   }
 
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants: Variants = {
-    hidden: { y: 30, opacity: 0, scale: 0.98 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.16, 1, 0.3, 1]
-      }
-    }
-  };
+  // Double list for perfect looping
+  const displayProjects = projects.length > 0 ? [...projects, ...projects] : [];
 
   return (
-    <section id="portfolio" className="py-20 md:py-32 px-4 md:px-6 bg-light dark:bg-dark relative z-20">
-      <div className="max-w-7xl mx-auto mb-12 md:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <section id="portfolio" className="py-24 md:py-48 bg-light dark:bg-dark overflow-hidden relative border-y border-black/5 dark:border-white/5">
+      <div className="max-w-7xl mx-auto px-6 mb-16 md:mb-24">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1 }}
         >
-          <h2 className="text-4xl md:text-7xl font-extrabold tracking-tighter text-black dark:text-white">PORTFÓLIO.</h2>
-          <p className="mt-2 md:mt-4 text-neutral-500 text-base md:text-lg">Projetos selecionados que definem nossa busca pela perfeição.</p>
+          <div className="inline-flex items-center gap-3 mb-6">
+            <span className="w-10 h-px bg-[#ffcc00]"></span>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#ffcc00]">Nossos Cases</span>
+          </div>
+          <h2 className="text-4xl md:text-8xl font-black tracking-tighter text-black dark:text-white leading-[0.9]">PORTFÓLIO<span className="text-[#ffcc00]">.</span></h2>
+          <p className="mt-6 text-neutral-500 text-lg md:text-xl max-w-xl font-medium leading-relaxed">Experiências digitais que unem estética de luxo e performance de elite.</p>
         </motion.div>
+      </div>
+
+      <div className="relative w-full h-[350px] md:h-[500px]">
+        {/* Gradients to fade edges */}
+        <div className="absolute left-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-r from-light dark:from-dark to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-l from-light dark:from-dark to-transparent z-20 pointer-events-none" />
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide"
+          className="flex gap-8 md:gap-12 absolute left-0 h-full"
+          style={{
+            x: xPos.interpolate(v => `${v}%`),
+            width: "fit-content"
+          }}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
         >
-          {['Todos', 'Landing', 'Site', 'Sistema'].map((filter) => (
-            <button key={filter} className="px-4 py-1.5 border border-black/10 dark:border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all whitespace-nowrap">
-              {filter}
-            </button>
+          {displayProjects.map((project, idx) => (
+            <div
+              key={`${project.id}-${idx}`}
+              className="flex-shrink-0 w-[300px] md:w-[600px] h-full group relative overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl"
+            >
+              <img
+                src={project.cover_image_url}
+                alt={project.title}
+                className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
+              />
+
+              {/* Minimalist Overlay */}
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-all duration-500 backdrop-blur-0 group-hover:backdrop-blur-sm p-10 flex flex-col justify-end">
+                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  <span className="text-[#ffcc00] text-[10px] font-black uppercase tracking-widest block mb-4">
+                    {project.technologies?.[0] || 'High-End Web'}
+                  </span>
+                  <h3 className="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase mb-6 leading-tight">
+                    {project.title}
+                  </h3>
+
+                  <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                    <p className="text-neutral-400 text-sm font-medium leading-relaxed max-w-sm hidden md:block">
+                      {project.description}
+                    </p>
+
+                    <a
+                      href={project.project_url || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-4 bg-[#ffcc00] text-black px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#ffcc00]/20"
+                    >
+                      VER PROJETO
+                      <ArrowUpRight size={16} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Static Mobile Label */}
+              <div className="absolute bottom-6 left-10 md:hidden group-hover:opacity-0 transition-opacity">
+                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{project.title}</h3>
+              </div>
+            </div>
           ))}
         </motion.div>
       </div>
 
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto"
-      >
-        {projects.map((project) => (
-          <MotionLink
-            key={project.id}
-            to={`/projeto/${project.slug}`}
-            variants={itemVariants}
-            onMouseEnter={() => setHoveredId(project.id)}
-            onMouseLeave={() => setHoveredId(null)}
-            className="group relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-[2.5rem] cursor-pointer bg-neutral-900 block"
-          >
-            {/* Image with subtle scroll effect on hover */}
-            <motion.img
-              src={project.cover_image_url}
-              alt={project.title}
-              className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
-            />
-
-            {/* Premium Overlay */}
-            <div className={`absolute inset-0 transition-colors duration-500 bg-gradient-to-t from-black via-black/20 to-transparent ${hoveredId === project.id ? 'bg-black/40 backdrop-blur-[2px]' : ''}`} />
-
-            {/* Content */}
-            <div className="absolute inset-0 p-8 flex flex-col justify-end">
-              <div className="overflow-hidden">
-                <span className="inline-block text-[#ffcc00] text-[10px] font-black uppercase tracking-widest mb-3">
-                  {project.technologies?.[0] || 'Projeto Digital'}
-                </span>
-              </div>
-
-              <h3 className="text-3xl font-black tracking-tighter mb-2 text-white transform group-hover:-translate-y-2 transition-transform duration-500">
-                {project.title}
-              </h3>
-
-              <div className="max-h-0 opacity-0 group-hover:max-h-20 group-hover:opacity-100 transition-all duration-500 overflow-hidden">
-                <p className="text-neutral-400 text-sm font-medium leading-relaxed mb-6">
-                  {project.description}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies?.slice(0, 2).map(tech => (
-                    <span key={tech} className="text-[10px] text-white/40 font-bold uppercase tracking-widest whitespace-nowrap">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 text-white font-black text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
-                  Ver Detalhes
-                  <ArrowUpRight size={14} className="text-[#ffcc00]" />
-                </div>
-              </div>
-            </div>
-
-            {/* Corner Accent */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#ffcc00]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          </MotionLink>
-        ))}
-      </motion.div>
+      <div className="mt-20 flex justify-center opacity-10">
+        <div className="flex gap-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-500" />
+          ))}
+        </div>
+      </div>
     </section>
   );
 };
