@@ -33,13 +33,12 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // 1. Hero starts appearing at 5%
-    // 2. Globe must be COMPLETELY GONE when Hero hits 30% of the sequence height
-    const contentOpacity = useTransform(smoothProgress, [0.05, 0.3], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.05, 0.3], [40, 0]);
+    // 1. Globe Intro: 0 to 0.15 (Vanishes VERY early)
+    const globeOpacity = useTransform(smoothProgress, [0.05, 0.15], [1, 0]);
 
-    // Globe clears out exactly when Hero is established at the 30% mark
-    const globeOpacity = useTransform(smoothProgress, [0.1, 0.3], [1, 0]);
+    // 2. Hero Entry: Starts ONLY after globe is mostly or completely gone
+    const contentOpacity = useTransform(smoothProgress, [0.2, 0.4], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.2, 0.4], [40, 0]);
 
     // Interaction window - enabled almost immediately
     const pointerEvents = useTransform(smoothProgress, p => p > 0.2 ? 'auto' : 'none');
