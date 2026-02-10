@@ -33,17 +33,19 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // Hero starts fully visible and fades out as we scroll deep into the sequence
-    const contentOpacity = useTransform(smoothProgress, [0, 0.3], [1, 0]);
-    const contentY = useTransform(smoothProgress, [0, 0.3], [0, -20]);
+    // 1. Initial State (p=0): Only Globe is visible, Hero is invisible.
+    // 2. Transition (p=0.2 to 0.5): Hero fades in and settles.
+    // 3. Final State (p > 0.6): Globe continues its sequence and fades out.
+    const contentOpacity = useTransform(smoothProgress, [0.3, 0.6], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.3, 0.6], [40, 0]);
 
-    // Globe starts invisible on the Hero and only fades in as the user scrolls down
-    const globeOpacity = useTransform(smoothProgress, [0.1, 0.4, 0.8, 0.95], [0, 1, 1, 0]);
+    // Globe is the protagonist at the start. It fades out as the Hero takes full focus.
+    const globeOpacity = useTransform(smoothProgress, [0.5, 0.8], [1, 0]);
 
     return (
         <div
             ref={containerRef}
-            className="relative w-full bg-[#000a1a]"
+            className="relative w-full bg-[#000a1a] z-0"
             style={{ height: isMobile ? "auto" : "300vh" }}
         >
             {/* 3D PERSPECTIVE LAYER (Fixed) - DESKTOP ONLY */}
@@ -71,19 +73,20 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
                 </motion.div>
             )}
 
-            {/* CONTENT LAYER - Hero leaves the screen to reveal the globe sequence */}
-            <div className="relative z-20 h-full flex flex-col justify-start pointer-events-none">
+            {/* CONTENT LAYER - Sticky so the Hero stays centered while fading in during the sequence */}
+            <div className={`z-20 w-full flex flex-col items-center justify-center pointer-events-none ${isMobile ? 'relative py-20' : 'sticky top-0 h-screen overflow-hidden'}`}>
                 <motion.div
                     style={{
                         opacity: isMobile ? 1 : contentOpacity,
                         y: isMobile ? 0 : contentY
                     }}
-                    className="h-screen w-full pointer-events-none"
+                    className="w-full pointer-events-none"
                 >
                     {children}
                 </motion.div>
             </div>
         </div>
     );
+
 
 };
