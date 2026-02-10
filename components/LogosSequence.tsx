@@ -35,9 +35,9 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
 
     // 1. Hero starts appearing almost immediately as the user scrolls
     // 2. Full overlap between [0.1 and 0.5] to prevent empty screens
-    // 3. Hero takes the stage permanently after 0.55
+    // 3. Hero takes the stage lower in the screen to avoid globe conflict
     const contentOpacity = useTransform(smoothProgress, [0.1, 0.35], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.1, 0.35], [40, 0]);
+    const contentY = useTransform(smoothProgress, [0.1, 0.35], [150, 80]);
 
     // Globe stays visible during the entire Hero entry, then clears away
     const globeOpacity = useTransform(smoothProgress, [0.3, 0.55], [1, 0]);
