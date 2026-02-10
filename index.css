@@ -1,0 +1,51 @@
+/* LOGOS PAGES - Core Design System */
+
+:root {
+  --color-dark: #000a1a;
+  --color-light: #FAFAFA;
+  --color-accent: #ffcc00;
+  /* Yellow/Gold */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-dark);
+  color: #ffffff;
+  overflow-x: hidden;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure smooth theme transitions already defined in index.html, 
+   but added here for completeness and to prevent 404s */
+
+canvas {
+  touch-action: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #111;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #222;
+}
+
+html:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #ddd;
+}

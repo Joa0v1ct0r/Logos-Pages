@@ -1,0 +1,8 @@
+
+{
+  "name": "Logos Pages - Digital Craftsmanship",
+  "description": "A premium digital studio specializing in high-performance web experiences inspired by the power of the Word.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

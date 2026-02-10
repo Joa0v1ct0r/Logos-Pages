@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+    <defs>
+        <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <filter id="glow-gold" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <linearGradient id="globe-gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00f2ff" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#ffcc00" stop-opacity="0.2"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Globe Background -->
+    <circle cx="50" cy="50" r="45" stroke="url(#globe-gradient)" stroke-width="0.5" opacity="0.5" />
+    
+    <!-- Longitudes -->
+    <path d="M50 5 Q80 50 50 95" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5" fill="none"/>
+    <path d="M50 5 Q20 50 50 95" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5" fill="none"/>
+    <ellipse cx="50" cy="50" rx="30" ry="45" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5" fill="none"/>
+    <line x1="50" y1="5" x2="50" y2="95" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5"/>
+    
+    <!-- Latitudes -->
+    <path d="M5 50 Q50 80 95 50" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5" fill="none"/>
+    <path d="M5 50 Q50 20 95 50" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5" fill="none"/>
+    <ellipse cx="50" cy="50" rx="45" ry="15" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5" fill="none"/>
+    <ellipse cx="50" cy="50" rx="45" ry="30" stroke="#ffffff" stroke-opacity="0.1" stroke-width="0.5" fill="none"/>
+
+    <!-- Circuit Paths (Cyan - Left) -->
+    <path d="M15 50 L25 50 L30 35 L45 35" stroke="#00f2ff" stroke-width="1.5" stroke-linecap="round" filter="url(#glow-cyan)" />
+    <circle cx="15" cy="50" r="2.5" fill="#00f2ff" filter="url(#glow-cyan)" />
+    <circle cx="45" cy="35" r="2.5" fill="#00f2ff" filter="url(#glow-cyan)" />
+    
+    <path d="M10 35 L20 35 L20 65 L35 65" stroke="#00f2ff" stroke-width="1.5" stroke-linecap="round" filter="url(#glow-cyan)" />
+    <circle cx="10" cy="35" r="2.5" fill="#00f2ff" filter="url(#glow-cyan)" />
+    <circle cx="35" cy="65" r="2.5" fill="#00f2ff" filter="url(#glow-cyan)" />
+
+    <!-- Circuit Paths (Gold - Right) -->
+    <path d="M85 50 L75 50 L70 65 L55 65" stroke="#ffcc00" stroke-width="1.5" stroke-linecap="round" filter="url(#glow-gold)" />
+    <circle cx="85" cy="50" r="2.5" fill="#ffcc00" filter="url(#glow-gold)" />
+    <circle cx="55" cy="65" r="2.5" fill="#ffcc00" filter="url(#glow-gold)" />
+
+    <path d="M90 35 L75 35 L75 20 L60 20" stroke="#ffcc00" stroke-width="1.5" stroke-linecap="round" filter="url(#glow-gold)" />
+    <circle cx="90" cy="35" r="2.5" fill="#ffcc00" filter="url(#glow-gold)" />
+    <circle cx="60" cy="20" r="2.5" fill="#ffcc00" filter="url(#glow-gold)" />
+
+    <!-- Center Cursor (Cyan with white border) -->
+    <g transform="translate(42, 42) scale(0.8)">
+        <path d="M0 0 L18 18 L10 19 L13 28 L9 29 L6 20 L0 26 Z" fill="#00f2ff" stroke="white" stroke-width="1.5" filter="url(#glow-cyan)"/>
+    </g>
+
+    <!-- Code Symbol (Right - Cyan/White) -->
+    <g transform="translate(75, 52) scale(0.6)">
+        <path d="M-15 -10 L-25 0 L-15 10 M15 -10 L25 0 L15 10 M-5 12 L5 -12" stroke="#00f2ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-cyan)"/>
+    </g>
+    
+    <!-- Outer Ring Segments -->
+    <path d="M15 50 A 35 35 0 0 1 50 15" stroke="#00f2ff" stroke-width="1.5" stroke-linecap="round" filter="url(#glow-cyan)" opacity="0.8"/>
+    <path d="M85 50 A 35 35 0 0 1 50 85" stroke="#ffcc00" stroke-width="1.5" stroke-linecap="round" filter="url(#glow-gold)" opacity="0.8"/>
+</svg>
