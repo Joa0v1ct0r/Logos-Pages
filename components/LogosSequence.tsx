@@ -33,12 +33,12 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // Fade in the site content (Hero) as the globe expands
-    const contentOpacity = useTransform(smoothProgress, [0.2, 0.95], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.2, 0.95], [50, 0]);
+    // Hero starts fully visible and fades out as we scroll deep into the sequence
+    const contentOpacity = useTransform(smoothProgress, [0, 0.3], [1, 0]);
+    const contentY = useTransform(smoothProgress, [0, 0.3], [0, -20]);
 
-    // Fade out globe as Hero becomes central
-    const globeOpacity = useTransform(smoothProgress, [0.65, 0.85], [1, 0]);
+    // Globe starts invisible on the Hero and only fades in as the user scrolls down
+    const globeOpacity = useTransform(smoothProgress, [0.1, 0.4, 0.8, 0.95], [0, 1, 1, 0]);
 
     return (
         <div
@@ -71,8 +71,8 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
                 </motion.div>
             )}
 
-            {/* CONTENT LAYER (Hero fades in calmly) */}
-            <div className="relative z-20 h-full flex flex-col justify-end pointer-events-none">
+            {/* CONTENT LAYER - Hero leaves the screen to reveal the globe sequence */}
+            <div className="relative z-20 h-full flex flex-col justify-start pointer-events-none">
                 <motion.div
                     style={{
                         opacity: isMobile ? 1 : contentOpacity,
@@ -85,4 +85,5 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
             </div>
         </div>
     );
+
 };
