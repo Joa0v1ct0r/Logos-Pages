@@ -33,23 +33,23 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // STRICT SEQUENTIAL PHASES (NO OVERLAP)
-    // 1. Globe Intro: 0.0 to 0.45 (Globe vanishes completely by 0.45)
-    const globeOpacity = useTransform(smoothProgress, [0.15, 0.45], [1, 0]);
+    // REFINED SEQUENTIAL PHASES
+    // 1. Globe Intro: 0.0 to 0.4 (Globe fades out early)
+    const globeOpacity = useTransform(smoothProgress, [0.1, 0.4], [1, 0]);
 
-    // 2. Buffer Zone: 0.45 to 0.55 (A brief moment of pure dark/background)
+    // 2. Transição Curta: 0.4 a 0.45
 
-    // 3. Hero Appearance: 0.55 to 0.85 (Hero ONLY starts appearing after Globe is gone)
-    const contentOpacity = useTransform(smoothProgress, [0.55, 0.85], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.55, 0.85], [100, 0]);
+    // 3. Hero Appearance: 0.45 to 0.65 (Hero fades in and stays solid)
+    const contentOpacity = useTransform(smoothProgress, [0.45, 0.65], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.45, 0.65], [80, 0]);
 
-    // Ensure buttons are clickable only when Hero is fully established
-    const pointerEvents = useTransform(smoothProgress, p => p > 0.7 ? 'auto' : 'none');
+    // Ensure Hero is fully interactive during the long "Hero Focus" phase (0.65 to 0.95)
+    const pointerEvents = useTransform(smoothProgress, p => p > 0.6 ? 'auto' : 'none');
 
     return (
         <div
             ref={containerRef}
-            className="relative w-full bg-[#000a1a] z-0"
+            className="relative w-full bg-[#000a1a] z-10"
             style={{ height: isMobile ? "auto" : "400vh" }}
         >
             {/* 3D PERSPECTIVE LAYER (Fixed) - DESKTOP ONLY */}
