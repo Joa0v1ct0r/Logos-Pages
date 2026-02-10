@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, useMotionValue, useAnimationFrame } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useMotionValue, useAnimationFrame, useTransform, useScroll } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -9,9 +9,19 @@ export const Portfolio: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
 
   // Motion value for manually controlled X position (in percentage)
   const xPos = useMotionValue(0);
+
+  // Correctly transform the numeric value to a percentage string
+  const xTransform = useTransform(xPos, v => `${v}%`);
+
+  // We keep the scroll logic for future use but don't apply it to opacity for now to ensure visibility
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "center 40%"]
+  });
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -30,18 +40,12 @@ export const Portfolio: React.FC = () => {
     fetchProjects();
   }, []);
 
-  // Frame-by-frame animation logic
+  // Frame-by-frame animation logic for the marquee
   useAnimationFrame((_time, delta) => {
     if (loading || isPaused || projects.length === 0) return;
-
-    // Constant speed (approx 5% per second)
     const moveStep = (delta / 1000) * 5;
     let nextX = xPos.get() - moveStep;
-
-    // Reset point (using 50% since we duplicated the list)
-    if (nextX <= -50) {
-      nextX = 0;
-    }
+    if (nextX <= -50) nextX = 0;
     xPos.set(nextX);
   });
 
@@ -59,92 +63,98 @@ export const Portfolio: React.FC = () => {
   const displayProjects = projects.length > 0 ? [...projects, ...projects] : [];
 
   return (
-    <section id="portfolio" className="py-24 md:py-48 bg-light dark:bg-dark overflow-hidden relative border-y border-black/5 dark:border-white/5">
-      <div className="max-w-7xl mx-auto px-6 mb-16 md:mb-24">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-        >
-          <div className="inline-flex items-center gap-3 mb-6">
-            <span className="w-10 h-px bg-[#ffcc00]"></span>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#ffcc00]">Nossos Cases</span>
-          </div>
-          <h2 className="text-4xl md:text-8xl font-black tracking-tighter text-black dark:text-white leading-[0.9]">PORTFÓLIO<span className="text-[#ffcc00]">.</span></h2>
-          <p className="mt-6 text-neutral-500 text-lg md:text-xl max-w-xl font-medium leading-relaxed">Experiências digitais que unem estética de luxo e performance de elite.</p>
-        </motion.div>
-      </div>
+    <div
+      id="portfolio"
+      ref={containerRef as any}
+      className="relative py-24 md:py-48 bg-light dark:bg-dark overflow-hidden border-y border-black/5 dark:border-white/5"
+    >
+      <div className="w-full">
+        <div className="max-w-7xl mx-auto px-6 mb-16 md:mb-24">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+          >
+            <div className="inline-flex items-center gap-3 mb-6">
+              <span className="w-10 h-px bg-[#ffcc00]"></span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#ffcc00]">Nossos Cases</span>
+            </div>
+            <h2 className="text-4xl md:text-8xl font-black tracking-tighter text-black dark:text-white leading-[0.9]">PORTFÓLIO<span className="text-[#ffcc00]">.</span></h2>
+            <p className="mt-6 text-neutral-500 text-lg md:text-xl max-w-xl font-medium leading-relaxed">Experiências digitais que unem estética de luxo e performance de elite.</p>
+          </motion.div>
+        </div>
 
-      <div className="relative w-full h-[350px] md:h-[500px]">
-        {/* Gradients to fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-r from-light dark:from-dark to-transparent z-20 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-l from-light dark:from-dark to-transparent z-20 pointer-events-none" />
+        <div className="relative w-full h-[350px] md:h-[500px]">
+          {/* Gradients to fade edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-r from-light dark:from-dark to-transparent z-20 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-l from-light dark:from-dark to-transparent z-20 pointer-events-none" />
 
-        <motion.div
-          className="flex gap-8 md:gap-12 absolute left-0 h-full"
-          style={{
-            x: xPos.interpolate(v => `${v}%`),
-            width: "fit-content"
-          }}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          {displayProjects.map((project, idx) => (
-            <div
-              key={`${project.id}-${idx}`}
-              className="flex-shrink-0 w-[300px] md:w-[600px] h-full group relative overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl"
-            >
-              <img
-                src={project.cover_image_url}
-                alt={project.title}
-                className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
-              />
+          <motion.div
+            className="flex gap-8 md:gap-12 absolute left-0 h-full"
+            style={{
+              x: xTransform,
+              width: "fit-content"
+            }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            {displayProjects.map((project, idx) => (
+              <div
+                key={`${project.id}-${idx}`}
+                className="flex-shrink-0 w-[300px] md:w-[600px] h-full group relative overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl"
+              >
+                <img
+                  src={project.cover_image_url}
+                  alt={project.title}
+                  className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
+                />
 
-              {/* Minimalist Overlay */}
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-all duration-500 backdrop-blur-0 group-hover:backdrop-blur-sm p-10 flex flex-col justify-end">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <span className="text-[#ffcc00] text-[10px] font-black uppercase tracking-widest block mb-4">
-                    {project.technologies?.[0] || 'High-End Web'}
-                  </span>
-                  <h3 className="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase mb-6 leading-tight">
-                    {project.title}
-                  </h3>
+                {/* Minimalist Overlay */}
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-all duration-500 backdrop-blur-0 group-hover:backdrop-blur-sm p-10 flex flex-col justify-end">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <span className="text-[#ffcc00] text-[10px] font-black uppercase tracking-widest block mb-4">
+                      {project.technologies?.[0] || 'High-End Web'}
+                    </span>
+                    <h3 className="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase mb-6 leading-tight">
+                      {project.title}
+                    </h3>
 
-                  <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                    <p className="text-neutral-400 text-sm font-medium leading-relaxed max-w-sm hidden md:block">
-                      {project.description}
-                    </p>
+                    <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      <p className="text-neutral-400 text-sm font-medium leading-relaxed max-w-sm hidden md:block">
+                        {project.description}
+                      </p>
 
-                    <a
-                      href={project.project_url || '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-4 bg-[#ffcc00] text-black px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#ffcc00]/20"
-                    >
-                      VER PROJETO
-                      <ArrowUpRight size={16} />
-                    </a>
+                      <a
+                        href={project.project_url || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-4 bg-[#ffcc00] text-black px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#ffcc00]/20"
+                      >
+                        VER PROJETO
+                        <ArrowUpRight size={16} />
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Static Mobile Label */}
-              <div className="absolute bottom-6 left-10 md:hidden group-hover:opacity-0 transition-opacity">
-                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{project.title}</h3>
+                {/* Static Mobile Label */}
+                <div className="absolute bottom-6 left-10 md:hidden group-hover:opacity-0 transition-opacity">
+                  <h3 className="text-xl font-black text-white uppercase tracking-tighter">{project.title}</h3>
+                </div>
               </div>
-            </div>
-          ))}
-        </motion.div>
-      </div>
+            ))}
+          </motion.div>
+        </div>
 
-      <div className="mt-20 flex justify-center opacity-10">
-        <div className="flex gap-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-500" />
-          ))}
+        <div className="mt-20 flex justify-center opacity-10">
+          <div className="flex gap-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-500" />
+            ))}
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
