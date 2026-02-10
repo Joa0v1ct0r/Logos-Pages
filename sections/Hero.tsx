@@ -39,7 +39,7 @@ export const Hero: React.FC = () => {
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-                className="text-[17vw] md:text-[11rem] font-extrabold tracking-tighter leading-[0.85] md:leading-[0.8] uppercase text-transparent bg-clip-text bg-gradient-to-br from-[#00f2ff] via-[#00d4ff] to-[#ffcc00] select-none opacity-80"
+                className="text-[17vw] md:text-[11rem] font-extrabold tracking-tighter leading-[0.85] md:leading-[0.8] uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#00f2ff] to-[#ffcc00] select-none"
               >
                 PAGES.
               </motion.h1>
