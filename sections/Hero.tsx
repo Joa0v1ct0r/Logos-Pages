@@ -6,7 +6,7 @@ import { ArrowUpRight } from 'lucide-react';
 export const Hero: React.FC = () => {
   return (
     <section
-      className="relative min-h-[100svh] flex flex-col items-center justify-center px-4 md:px-6 pt-24 pb-12 overflow-hidden bg-transparent pointer-events-none"
+      className="relative min-h-[100svh] flex flex-col items-center justify-center px-4 md:px-6 pt-24 pb-12 overflow-hidden bg-transparent"
     >
       <div className="relative z-10 max-w-7xl w-full pointer-events-none">
         <div className="flex flex-col items-center text-center md:items-start md:text-left">

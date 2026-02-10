@@ -33,14 +33,14 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         restDelta: 0.001
     });
 
-    // 1. Globe Intro: Active from 0 to 0.3
-    // 2. Transition: Globe fades [0.3 -> 0.5], Hero fades in [0.4 -> 0.6]
-    // 3. Hero Focus: Hero stays solid from 0.6 to 1.0 (plenty of scroll space)
-    const contentOpacity = useTransform(smoothProgress, [0.4, 0.6], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.4, 0.6], [60, 0]);
+    // 1. Globe Intro: 0 to 0.2
+    // 2. Crossfade: Globe [0.2 -> 0.4], Hero [0.3 -> 0.5]
+    // 3. Hero Focus: 0.5 to 1.0 (Stay visible for the rest of the 350vh)
+    const contentOpacity = useTransform(smoothProgress, [0.3, 0.5], [0, 1]);
+    const contentY = useTransform(smoothProgress, [0.3, 0.5], [40, 0]);
 
-    // Globe starts at full strength and vanishes exactly as the Hero title settles
-    const globeOpacity = useTransform(smoothProgress, [0.3, 0.55], [1, 0]);
+    // Globe clears out early to allow the Hero to breathe
+    const globeOpacity = useTransform(smoothProgress, [0.2, 0.45], [1, 0]);
 
     // Ensure buttons are clickable only when Hero is established
     const pointerEvents = useTransform(smoothProgress, p => p > 0.5 ? 'auto' : 'none');
@@ -49,7 +49,7 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }
         <div
             ref={containerRef}
             className="relative w-full bg-[#000a1a] z-0"
-            style={{ height: isMobile ? "auto" : "400vh" }}
+            style={{ height: isMobile ? "auto" : "350vh" }}
         >
             {/* 3D PERSPECTIVE LAYER (Fixed) - DESKTOP ONLY */}
             {!isMobile && (
