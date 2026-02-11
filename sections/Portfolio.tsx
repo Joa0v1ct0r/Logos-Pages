@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion, useMotionValue, useAnimationFrame, useTransform } from 'framer-motion';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { supabase } from '../lib/supabase';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -9,6 +11,39 @@ export const Portfolio: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Register GSAP ScrollTrigger
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (loading || projects.length === 0) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(".portfolio-card-gsap",
+        {
+          opacity: 0,
+          y: 40
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 80%",
+            once: true,
+          }
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [loading, projects]);
 
   // Motion value for manually controlled X position (in percentage)
   const xPos = useMotionValue(0);
@@ -58,6 +93,7 @@ export const Portfolio: React.FC = () => {
   return (
     <div
       id="portfolio"
+      ref={sectionRef}
       className="relative py-24 md:py-48 bg-light dark:bg-dark overflow-hidden border-y border-black/5 dark:border-white/5"
     >
       <div className="w-full">
@@ -77,7 +113,7 @@ export const Portfolio: React.FC = () => {
           </motion.div>
         </div>
 
-        <div className="relative w-full h-[350px] md:h-[500px]">
+        <div className="relative w-full h-[300px] md:h-[420px]">
           {/* Gradients to fade edges */}
           <div className="absolute left-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-r from-light dark:from-dark to-transparent z-20 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-32 md:w-64 bg-gradient-to-l from-light dark:from-dark to-transparent z-20 pointer-events-none" />
@@ -94,7 +130,7 @@ export const Portfolio: React.FC = () => {
             {displayProjects.map((project, idx) => (
               <div
                 key={`${project.id}-${idx}`}
-                className="flex-shrink-0 w-[300px] md:w-[600px] h-full group relative overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl"
+                className="portfolio-card-gsap flex-shrink-0 w-[260px] md:w-[500px] h-full group relative overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl"
               >
                 <img
                   src={project.cover_image_url}

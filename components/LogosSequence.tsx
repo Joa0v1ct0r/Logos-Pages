@@ -1,94 +1,144 @@
-
-import React, { useRef, Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { LogosGlobe } from './LogosGlobe';
 
 interface LogosSequenceProps {
-    children: React.ReactNode;
     isDark: boolean;
+    onComplete: () => void;
+    initialProgress?: number;
+    isIntroDone?: boolean;
 }
 
-export const LogosSequence: React.FC<LogosSequenceProps> = ({ children, isDark }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [isMobile, setIsMobile] = React.useState(false);
+export const LogosSequence: React.FC<LogosSequenceProps> = ({ isDark, onComplete, initialProgress = 0, isIntroDone = false }) => {
+    const [isMobile, setIsMobile] = useState(false);
+    const progress = useMotionValue(initialProgress);
 
-    React.useEffect(() => {
+    const [hasInteracted, setHasInteracted] = useState(false);
+
+    // Sync progress when initialProgress changes (e.g. when going back)
+    useEffect(() => {
+        progress.set(initialProgress);
+        setHasInteracted(false);
+    }, [initialProgress, progress]);
+
+    // Progressive control via mouse wheel and touch
+    useEffect(() => {
+        let lastTouchY = 0;
+
+        const handleWheel = (e: WheelEvent) => {
+            const current = progress.get();
+            if (e.deltaY > 0) setHasInteracted(true); // User is scrolling forward
+
+            // Smoother delta calculation
+            const delta = e.deltaY * 0.0006;
+            const next = Math.min(Math.max(current + delta, 0), 1);
+            progress.set(next);
+        };
+
+        const handleTouchStart = (e: TouchEvent) => {
+            lastTouchY = e.touches[0].clientY;
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            const currentY = e.touches[0].clientY;
+            const deltaY = lastTouchY - currentY;
+            lastTouchY = currentY;
+
+            if (deltaY > 0) setHasInteracted(true);
+
+            const current = progress.get();
+            const delta = deltaY * 0.0015;
+            const next = Math.min(Math.max(current + delta, 0), 1);
+            progress.set(next);
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        window.addEventListener('touchstart', handleTouchStart);
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+        return () => {
+            window.removeEventListener('wheel', handleWheel);
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchmove', handleTouchMove);
+        };
+    }, [progress]);
+
+    // Snappier, responsive scrub progress
+    const smoothProgress = useSpring(progress, {
+        stiffness: 120,
+        damping: 30,
+        restDelta: 0.001
+    });
+
+    // Better completion detection synced with the visual progress
+    useEffect(() => {
+        const unsubscribe = smoothProgress.on("change", (v) => {
+            // Only complete if we are at the end AND the user has moved forward
+            // Or if we started at 0 (initial entry)
+            if (v >= 0.98 && (hasInteracted || initialProgress === 0)) {
+                const timer = setTimeout(() => {
+                    onComplete();
+                }, 50);
+                return () => clearTimeout(timer);
+            }
+        });
+        return unsubscribe;
+    }, [onComplete, smoothProgress, hasInteracted, initialProgress]);
+
+    useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // The "Sequence" container for the scroll scrub
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start start", "end end"]
-    });
-
-    // Snappier, responsive scrub progress
-    const smoothProgress = useSpring(scrollYProgress, {
-        stiffness: 120,
-        damping: 30,
-        restDelta: 0.001
-    });
-
-    // 1. Globe Intro: 0 to 0.15 (Vanishes VERY early)
-    const globeOpacity = useTransform(smoothProgress, [0.05, 0.15], [1, 0]);
-
-    // 2. Hero Entry: Starts ONLY after globe is mostly or completely gone
-    const contentOpacity = useTransform(smoothProgress, [0.2, 0.4], [0, 1]);
-    const contentY = useTransform(smoothProgress, [0.2, 0.4], [40, 0]);
-
-    // Interaction window - enabled almost immediately
-    const pointerEvents = useTransform(smoothProgress, p => p > 0.2 ? 'auto' : 'none');
+    // Sync with existing animation ranges in LogosGlobe
+    const internalGlobeProgress = smoothProgress;
 
     return (
-        <div
-            ref={containerRef}
-            className="relative w-full bg-[#000a1a] z-30"
-            style={{ height: isMobile ? "auto" : "350vh" }}
+        <motion.div
+            initial={{ opacity: initialProgress > 0 ? 0 : 1 }}
+            animate={{
+                opacity: isIntroDone ? 0 : 1,
+                scale: isIntroDone ? 1.05 : 1,
+                filter: isIntroDone ? "blur(10px)" : "blur(0px)",
+                pointerEvents: isIntroDone ? "none" : "auto"
+            }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-[2000] bg-[#000a1a] overflow-hidden touch-none"
         >
-            {/* 3D PERSPECTIVE LAYER (Fixed) - DESKTOP ONLY */}
-            {!isMobile && (
-                <motion.div
-                    style={{ opacity: globeOpacity }}
-                    className="fixed inset-0 z-[5] pointer-events-none"
-                >
-                    <Canvas
-                        camera={{ position: [0, 0, 10], fov: 45 }}
-                        dpr={[1, 2]}
-                        gl={{
-                            antialias: true,
-                            alpha: true,
-                            powerPreference: "high-performance"
-                        }}
-                    >
-                        <Suspense fallback={null}>
-                            <LogosGlobe
-                                progress={smoothProgress}
-                                isDark={isDark}
-                            />
-                        </Suspense>
-                    </Canvas>
-                </motion.div>
-            )}
-
-            {/* CONTENT LAYER - Sticky so the Hero stays centered while fading in during the sequence */}
-            <div className={`z-20 w-full flex flex-col items-center justify-center ${isMobile ? 'relative py-20' : 'sticky top-0 h-screen'}`}>
-                <motion.div
-                    style={{
-                        opacity: isMobile ? 1 : contentOpacity,
-                        y: isMobile ? 0 : contentY,
-                        pointerEvents: isMobile ? 'auto' : pointerEvents
+            {/* 3D PERSPECTIVE LAYER */}
+            <div className="absolute inset-0 z-[5]">
+                <Canvas
+                    camera={{ position: [0, 0, 10], fov: 45 }}
+                    dpr={[1, 2]}
+                    gl={{
+                        antialias: true,
+                        alpha: true,
+                        powerPreference: "high-performance"
                     }}
-                    className="w-full"
                 >
-                    {children}
-                </motion.div>
+                    <Suspense fallback={null}>
+                        <LogosGlobe
+                            progress={internalGlobeProgress}
+                            isDark={isDark}
+                        />
+                    </Suspense>
+                </Canvas>
             </div>
-        </div>
+
+            {/* Hint for the user */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+            >
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-px h-12 bg-gradient-to-b from-transparent to-cyan-500" />
+                    <span className="text-[8px] uppercase tracking-[1em] text-cyan-500 font-black">Scroll</span>
+                </div>
+            </motion.div>
+        </motion.div>
     );
-
-
 };

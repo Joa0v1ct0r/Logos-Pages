@@ -24,7 +24,7 @@ const ServiceCard = ({ service, index }: { service: any, index: number }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      className="group relative p-8 md:p-10 border border-black/5 dark:border-white/5 bg-white/50 dark:bg-neutral-900/20 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-700 hover:bg-white dark:hover:bg-white/[0.02] shadow-sm dark:shadow-none overflow-hidden"
+      className="group relative p-6 md:p-8 border border-black/5 dark:border-white/5 bg-white/50 dark:bg-neutral-900/20 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-700 hover:bg-white dark:hover:bg-white/[0.02] shadow-sm dark:shadow-none overflow-hidden"
     >
       {/* Interactive Glow */}
       <div
@@ -35,11 +35,11 @@ const ServiceCard = ({ service, index }: { service: any, index: number }) => {
       />
 
       <div className="relative z-10">
-        <div className="w-12 h-12 md:w-14 md:h-14 bg-black/5 dark:bg-white/5 rounded-xl md:rounded-2xl flex items-center justify-center mb-6 md:mb-8 text-black dark:text-white group-hover:scale-110 transition-all">
+        <div className="w-10 h-10 md:w-12 md:h-12 bg-black/5 dark:bg-white/5 rounded-xl md:rounded-2xl flex items-center justify-center mb-6 md:mb-8 text-black dark:text-white group-hover:scale-110 transition-all">
           {service.icon}
         </div>
-        <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 tracking-tight uppercase text-black dark:text-white">{service.title}</h3>
-        <p className="text-neutral-500 text-base md:text-lg leading-relaxed group-hover:text-neutral-800 dark:group-hover:text-neutral-300 transition-colors">
+        <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 tracking-tight uppercase text-black dark:text-white">{service.title}</h3>
+        <p className="text-neutral-500 text-sm md:text-base leading-relaxed group-hover:text-neutral-800 dark:group-hover:text-neutral-300 transition-colors">
           {service.description}
         </p>
       </div>
@@ -78,7 +78,7 @@ export const Services: React.FC = () => {
             </div>
           </motion.div>
 
-          <div className="grid gap-6 md:gap-8 w-full">
+          <div className="grid gap-4 md:gap-5 w-full">
             {SERVICES.map((service, index) => (
               <ServiceCard key={index} service={service} index={index} />
             ))}
