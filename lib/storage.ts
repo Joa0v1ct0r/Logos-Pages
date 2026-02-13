@@ -2,7 +2,7 @@
 import { supabase } from '../lib/supabase';
 
 export const storageService = {
-    async uploadFile(bucket: 'portfolio' | 'assets', file: File) {
+    async uploadFile(bucket: 'portfolio' | 'assets' | 'project-videos', file: File) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${fileName}`;
@@ -20,7 +20,7 @@ export const storageService = {
         return publicUrl;
     },
 
-    async deleteFile(bucket: 'portfolio' | 'assets', url: string) {
+    async deleteFile(bucket: 'portfolio' | 'assets' | 'project-videos', url: string) {
         const fileName = url.split('/').pop();
         if (!fileName) return;
 

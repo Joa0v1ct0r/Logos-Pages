@@ -36,6 +36,7 @@ export const PortfolioManager: React.FC = () => {
         status: 'Public',
         demo_type: 'scroll',
         demo_video_url: '',
+        video_url: '',
         demo_images: [],
         developed_items: [],
         whatsapp_message: ''
@@ -121,6 +122,36 @@ export const PortfolioManager: React.FC = () => {
         }
     };
 
+    const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validation
+        const isVideo = file.type.startsWith('video/');
+        const isSmallEnough = file.size <= 20 * 1024 * 1024; // 20MB
+
+        if (!isVideo) {
+            alert('Por favor, selecione um arquivo de vídeo (mp4, webm)');
+            return;
+        }
+
+        if (!isSmallEnough) {
+            alert('O vídeo deve ter no máximo 20MB');
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const url = await storageService.uploadFile('project-videos', file);
+            setCurrentProject(prev => ({ ...prev, video_url: url }));
+        } catch (err) {
+            console.error(err);
+            alert('Erro no upload do vídeo');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -169,6 +200,7 @@ export const PortfolioManager: React.FC = () => {
                             project_url: '',
                             status: 'Public',
                             demo_type: 'scroll',
+                            video_url: '',
                             developed_items: []
                         });
                         setIsEditing(true);
@@ -392,16 +424,52 @@ export const PortfolioManager: React.FC = () => {
                                             )}
                                         </div>
 
+                                        {/* Vídeo de Demonstração (Desktop Hover) */}
+                                        <div className="space-y-4 pt-4 border-t border-white/5">
+                                            <div className="flex items-center justify-between ml-4">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Vídeo de Hover (Desktop)</label>
+                                                {currentProject.video_url && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setCurrentProject(prev => ({ ...prev, video_url: '' }))}
+                                                        className="text-[10px] font-bold text-red-500 uppercase hover:text-white transition-colors"
+                                                    >
+                                                        Remover Vídeo
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <div className="aspect-video bg-white/5 border border-white/5 border-dashed rounded-2xl relative flex items-center justify-center overflow-hidden group">
+                                                {uploading ? (
+                                                    <Loader2 className="animate-spin text-[#ffcc00]" />
+                                                ) : currentProject.video_url ? (
+                                                    <>
+                                                        <video src={currentProject.video_url} className="w-full h-full object-cover" muted />
+                                                        <label className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                                            <Upload size={24} />
+                                                            <input type="file" className="hidden" onChange={handleVideoUpload} accept="video/mp4,video/webm" />
+                                                        </label>
+                                                    </>
+                                                ) : (
+                                                    <label className="cursor-pointer flex flex-col items-center gap-2">
+                                                        <Upload className="text-neutral-500" />
+                                                        <span className="text-[10px] font-bold text-neutral-500 uppercase">Selecionar Vídeo (Máx 20MB)</span>
+                                                        <input type="file" className="hidden" onChange={handleVideoUpload} accept="video/mp4,video/webm" />
+                                                    </label>
+                                                )}
+                                            </div>
+                                        </div>
+
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">Tipo de Demo</label>
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">Tipo de Demo Interna</label>
                                                 <select
                                                     value={currentProject.demo_type}
                                                     onChange={(e) => setCurrentProject({ ...currentProject, demo_type: e.target.value as any })}
                                                     className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 px-6 focus:outline-none focus:border-red-600 transition-all font-bold"
                                                 >
                                                     <option value="scroll" className="bg-[#0c0c0c]">Scroll de Imagem</option>
-                                                    <option value="video" className="bg-[#0c0c0c]">Vídeo (Autoplay)</option>
+                                                    <option value="video" className="bg-[#0c0c0c]">Vídeo Interno</option>
                                                 </select>
                                             </div>
                                             <div className="space-y-2">
@@ -417,7 +485,7 @@ export const PortfolioManager: React.FC = () => {
 
                                         {currentProject.demo_type === 'video' ? (
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">URL do Vídeo (.mp4)</label>
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500 ml-4">URL do Vídeo Interno (.mp4)</label>
                                                 <input
                                                     type="text"
                                                     value={currentProject.demo_video_url}
@@ -458,12 +526,6 @@ export const PortfolioManager: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* HIDING CASE STUDY DETAILS AS PER USER REQUEST TO SIMPLIFY */}
-                            {/* <div className="space-y-6 pt-6 border-t border-white/5">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#ffcc00] border-b border-[#ffcc00]/20 pb-2">Conteúdo Detalhado (Opcional)</h3>
-                                ...
-                            </div> */}
-
                             <div className="flex gap-4 pt-10 border-t border-white/5">
                                 <button
                                     type="button"
@@ -474,7 +536,7 @@ export const PortfolioManager: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={loading && !uploading}
+                                    disabled={loading || uploading}
                                     className="flex-1 bg-white text-black py-6 rounded-3xl font-black uppercase text-[10px] tracking-[0.3em] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                                 >
                                     {currentProject.id ? 'Salvar Projeto' : 'Publicar Agora'}

@@ -118,7 +118,7 @@ export const Pricing: React.FC = () => {
         </motion.div>
       </div>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+      <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-8 relative z-10">
         {plans.map((plan, index) => (
           <motion.div
             key={plan.id}
@@ -135,7 +135,7 @@ export const Pricing: React.FC = () => {
               y: -5,
               transition: { duration: 0.3 }
             }}
-            className={`relative p-8 md:p-10 rounded-[2.5rem] border group backdrop-blur-[2px] ${plan.highlighted
+            className={`relative p-8 md:p-10 rounded-[2.5rem] border group backdrop-blur-[2px] w-full md:max-w-[380px] ${plan.highlighted
               ? 'border-[#00f2ff]/50 bg-white dark:bg-[#00f2ff]/5 shadow-[0_0_50px_rgba(0,242,255,0.05)] z-20'
               : 'border-black/[0.05] dark:border-white/5 bg-neutral-50/50 dark:bg-neutral-900/40'
               } flex flex-col overflow-hidden transition-colors duration-500`}

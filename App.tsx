@@ -120,7 +120,7 @@ const LandingPage = () => {
             onMouseMove={handleMouseMove}
             className={`relative bg-light dark:bg-dark text-dark dark:text-white selection:bg-[#ffcc00]/30 min-h-screen ${!isIntroDone ? 'overflow-hidden h-screen' : 'overflow-x-hidden'}`}
         >
-            <div className="fixed inset-0 grainy z-[100] pointer-events-none" />
+            <div className="fixed inset-0 grainy z-[5] pointer-events-none" />
             <div className="fixed inset-0 divine-pattern z-[1] opacity-50 pointer-events-none" />
 
             {/* Global Interactive Spotlight */}

@@ -409,11 +409,9 @@ export const LogosGlobe: React.FC<{ progress: any; isDark?: boolean }> = ({ prog
             <group
                 ref={globeRef}
                 onPointerOver={() => {
-                    if (!isDragging.current) document.body.style.cursor = 'grab';
                     isHovering.current = true;
                 }}
                 onPointerOut={() => {
-                    if (!isDragging.current) document.body.style.cursor = 'auto';
                     isHovering.current = false;
                     mousePos.current.set(0, 0);
                 }}
@@ -432,10 +430,9 @@ export const LogosGlobe: React.FC<{ progress: any; isDark?: boolean }> = ({ prog
                     onPointerDown={(e) => {
                         (e as any).stopPropagation();
                         onPointerDown(e);
-                        document.body.style.cursor = 'grabbing';
                     }}
                     onPointerUp={() => {
-                        document.body.style.cursor = isHovering.current ? 'grab' : 'auto';
+                        // Removed body cursor reset
                     }}
                 >
                     <sphereGeometry args={[RADIUS * 1.2, 32, 32]} />

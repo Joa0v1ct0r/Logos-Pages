@@ -24,6 +24,8 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ isDark, onComplete
 
     // Progressive control via mouse wheel and touch
     useEffect(() => {
+        if (isIntroDone) return; // Don't attach listeners if intro is already finished
+
         let lastTouchY = 0;
 
         const handleWheel = (e: WheelEvent) => {
@@ -62,7 +64,7 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ isDark, onComplete
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
         };
-    }, [progress]);
+    }, [progress, isIntroDone]);
 
     // Snappier, responsive scrub progress
     const smoothProgress = useSpring(progress, {
@@ -103,10 +105,11 @@ export const LogosSequence: React.FC<LogosSequenceProps> = ({ isDark, onComplete
                 opacity: isIntroDone ? 0 : 1,
                 scale: isIntroDone ? 1.05 : 1,
                 filter: isIntroDone ? "blur(10px)" : "blur(0px)",
-                pointerEvents: isIntroDone ? "none" : "auto"
+                pointerEvents: isIntroDone ? "none" : "auto",
+                zIndex: isIntroDone ? 0 : 2000
             }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[2000] bg-[#000a1a] overflow-hidden touch-none"
+            className="fixed inset-0 bg-[#000a1a] overflow-hidden"
         >
             {/* 3D PERSPECTIVE LAYER */}
             <div className="absolute inset-0 z-[5]">

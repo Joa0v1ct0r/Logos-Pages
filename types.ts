@@ -8,6 +8,7 @@ export interface Project {
   long_description?: string;
   technologies: string[];
   cover_image_url: string;
+  video_url?: string;
   project_url: string;
   is_active: boolean;
   order_index: number;

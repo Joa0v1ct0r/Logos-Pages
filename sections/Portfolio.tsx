@@ -7,6 +7,110 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Project } from '../types';
 
+const PortfolioCard = ({
+  project,
+  idx,
+  onMouseEnter: onMouseEnterProp
+}: {
+  project: Project;
+  idx: number;
+  onMouseEnter?: (e: React.MouseEvent<HTMLDivElement>) => void;
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const hasVideo = !!project.video_url;
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only trigger on desktop/mouse devices
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      setIsHovered(true);
+      if (videoRef.current && hasVideo) {
+        videoRef.current.play().catch(() => {
+          // Silent catch for autoplay restrictions if any, though it's muted
+        });
+      }
+      onMouseEnterProp?.(e);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  return (
+    <div
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="portfolio-card-gsap flex-shrink-0 w-[260px] md:w-[500px] h-full group relative overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl"
+    >
+      {/* Background Image */}
+      <img
+        src={project.cover_image_url}
+        alt={project.title}
+        className={`w-full h-full object-cover transition-all duration-1000 ${hasVideo && isHovered ? 'opacity-0' : 'scale-100 opacity-100'
+          }`}
+      />
+
+      {/* Video Hover Layer (Desktop Only) */}
+      {hasVideo && (
+        <video
+          ref={videoRef}
+          src={project.video_url}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 pointer-events-none ${isHovered ? 'opacity-100' : 'opacity-0'
+            }`}
+        />
+      )}
+
+      {/* Minimalist Overlay - Conditional based on isHovered and hasVideo */}
+      <div className={`absolute inset-0 transition-all duration-500 p-10 flex flex-col justify-end ${isHovered ? 'bg-transparent backdrop-blur-0' : 'bg-black/20'
+        }`}>
+        <div className={`transform transition-transform duration-500 ${isHovered ? 'translate-y-0' : 'translate-y-4'}`}>
+          <span className="text-[#ffcc00] text-[10px] font-black uppercase tracking-widest block mb-4">
+            {project.technologies?.[0] || 'High-End Web'}
+          </span>
+          <h3 className={`text-2xl md:text-4xl font-black tracking-tighter uppercase mb-6 leading-tight transition-colors duration-500 ${isHovered ? 'text-cyan-400' : 'text-white'
+            }`}>
+            {project.title}
+          </h3>
+
+          <div className={`flex items-center justify-between transition-opacity duration-500 delay-100 ${isHovered ? 'opacity-100' : 'opacity-0'
+            }`}>
+            {!hasVideo && (
+              <p className="text-neutral-400 text-sm font-medium leading-relaxed max-w-sm hidden md:block">
+                {project.description}
+              </p>
+            )}
+
+            <a
+              href={project.project_url || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex items-center gap-4 bg-[#ffcc00] text-black px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#ffcc00]/20 ${hasVideo ? 'ml-auto' : ''
+                }`}
+            >
+              VER PROJETO
+              <ArrowUpRight size={16} />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Static Mobile Label */}
+      <div className={`absolute bottom-6 left-10 md:hidden transition-opacity ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
+        <h3 className="text-xl font-black text-white uppercase tracking-tighter">{project.title}</h3>
+      </div>
+    </div>
+  );
+};
+
 export const Portfolio: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,9 +151,11 @@ export const Portfolio: React.FC = () => {
 
   // Motion value for manually controlled X position (in percentage)
   const xPos = useMotionValue(0);
+  // NEW: Motion value for centering offset (in pixels)
+  const xOffset = useMotionValue(0);
 
-  // Correctly transform the numeric value to a percentage string
-  const xTransform = useTransform(xPos, v => `${v}%`);
+  // Combine percentage-based marquee with pixel-based centering offset
+  const xCombined = useTransform([xPos, xOffset], ([base, offset]) => `calc(${base}% + ${offset}px)`);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -76,6 +182,40 @@ export const Portfolio: React.FC = () => {
     if (nextX <= -50) nextX = 0;
     xPos.set(nextX);
   });
+
+  const handleCardMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    setIsPaused(true);
+
+    // Calculate centering offset
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const cardCenter = rect.left + rect.width / 2;
+    const viewportCenter = viewportWidth / 2;
+    const delta = viewportCenter - cardCenter;
+
+    // Animate to new centered position
+    const currentOffset = xOffset.get();
+    gsap.to(xOffset, {
+      duration: 0.8,
+      value: currentOffset + delta,
+      ease: "power2.inOut",
+      overwrite: true
+    });
+  };
+
+  const handleContainerMouseLeave = () => {
+    // Return to original position before resuming loop
+    gsap.to(xOffset, {
+      duration: 0.8,
+      value: 0,
+      ease: "power2.inOut",
+      overwrite: true,
+      onComplete: () => setIsPaused(false)
+    });
+  };
 
   if (loading) {
     return (
@@ -121,56 +261,18 @@ export const Portfolio: React.FC = () => {
           <motion.div
             className="flex gap-8 md:gap-12 absolute left-0 h-full"
             style={{
-              x: xTransform,
+              x: xCombined,
               width: "fit-content"
             }}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+            onMouseLeave={handleContainerMouseLeave}
           >
             {displayProjects.map((project, idx) => (
-              <div
+              <PortfolioCard
                 key={`${project.id}-${idx}`}
-                className="portfolio-card-gsap flex-shrink-0 w-[260px] md:w-[500px] h-full group relative overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl"
-              >
-                <img
-                  src={project.cover_image_url}
-                  alt={project.title}
-                  className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
-                />
-
-                {/* Minimalist Overlay */}
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-all duration-500 backdrop-blur-0 group-hover:backdrop-blur-sm p-10 flex flex-col justify-end">
-                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <span className="text-[#ffcc00] text-[10px] font-black uppercase tracking-widest block mb-4">
-                      {project.technologies?.[0] || 'High-End Web'}
-                    </span>
-                    <h3 className="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase mb-6 leading-tight">
-                      {project.title}
-                    </h3>
-
-                    <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      <p className="text-neutral-400 text-sm font-medium leading-relaxed max-w-sm hidden md:block">
-                        {project.description}
-                      </p>
-
-                      <a
-                        href={project.project_url || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-4 bg-[#ffcc00] text-black px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#ffcc00]/20"
-                      >
-                        VER PROJETO
-                        <ArrowUpRight size={16} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Static Mobile Label */}
-                <div className="absolute bottom-6 left-10 md:hidden group-hover:opacity-0 transition-opacity">
-                  <h3 className="text-xl font-black text-white uppercase tracking-tighter">{project.title}</h3>
-                </div>
-              </div>
+                project={project}
+                idx={idx}
+                onMouseEnter={handleCardMouseEnter}
+              />
             ))}
           </motion.div>
         </div>
